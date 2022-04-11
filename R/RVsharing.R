@@ -19,10 +19,10 @@ NULL
 #' enumerates a subset of pedigree members, the function will then compute
 #' the probability these carriers share the rare variant AND the final
 #' descendants not included in carriers do not carry it based on the above
-#' terms. To obtain the probability that a set of pedigree members carry a
-#' rare variant given it was seen in any of the set members (ignoring the
-#' carrier status of final descendants not in the set), the pedigree must be
-#' trimmed of the other final descendants before calling RVsharing.
+#' terms. To control the subset of pedigree members for which sharing of the
+#' rare variant is evaluated, define the members of the subset as affected in
+#' ped and set the option uneAffected=TRUE. The only restriction is that all
+#' carriers must be defined as affected.
 #'
 #' @param ped S3 pedigree object or a list of pedigree objects
 #' @param carriers subjects in pedigree that have the variant, if
@@ -34,11 +34,11 @@ NULL
 #' @param founderDist custom distribution among founders. Only used
 #' when simulating probability with nSim
 #' @param useAffected a logical value indicating whether to condition on seeing the variant
-#' among the affected subjects instead of the final descendants
+#' among the affected subjects in ped instead of the final descendants
 #' @param kinshipOrder order of the polynomial approximation to the distribtion
 #' of the number of distinct alleles in the founders (d in Bureau et al.).
 #' Must be <= 5
-#' @param splitPed a logical value indicating whether to split the pedigree in subpedigrees below each founder to enable computations in pedigrees too large to be stored in a single Bayesian network
+#' @param splitPed a logical value indicating whether to split the pedigree in subpedigrees below each founder to enable computations in pedigrees too large to be stored in a single Bayesian network. Cannot be used in conjunction with alleleFreq or kinshipCoef. If useAffected=TRUE, this option produces correct probabilities only if all the affected subjects are non-founders of the pedigree. Erroneous probabilities may be returned if any founder is affected.
 #' @param useFounderCouples a logical value indicating whether to exploit the interchangeability of the mother and father from founder couples to save computations. Warning! This works only when all founders have only one spouse. Set to FALSE if at least one founder has two or more spouses. Only used when splitPed = TRUE
 #' @param ... allows for additional arguments
 #' @return sharing probability between all carriers in pedigree, or if splitPed = TRUE, a vector of sharing probabilities for all subsets of the carriers

@@ -150,7 +150,7 @@ extract_carriers = function(ped,site,fam,type="alleles",minor.allele=2)
 #' @param sites a vector of the column indices of the variant sites to
 #' test in \code{data}. If the argument fams is provided, the variant sites
 #' are tested in each corresponding family in the fams vector (a variant
-#' present in multiple families must then be repeated for every families
+#' present in multiple families must then be repeated for every family
 #' where it appears).
 #' @param fams an optional character vector of the names of families
 #' in \code{data} and \code{ped.listfams} carrying the variants listed in the 
