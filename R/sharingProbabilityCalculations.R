@@ -15,6 +15,30 @@ numerProb <- function(net, procPed)
     return(marginalProb(net, c(rvInCarriers, noRvInNonCarriers)))
 }
 
+#' numerator of sharing probability for a specific sharing pattern of 1 or 2 copies of the RV
+#' @keywords internal
+#'
+#' @description calculates the numerator of the sharing probability
+#' for a specific sharing pattern of 1 or 2 copies of the RV
+#' @param gRain bayesian network
+#' @param procPed pedigree object that has been process with processPedigree
+#' @return numerator value
+numerProbPattern <- function(patternIndex, net, procPed)
+{
+    # Convert pattern index into configuration of number of copies
+    pattern = as.numeric(strsplit(R.utils::intToBin(patternIndex),"")[[1]]) + 1
+    ncarriers = length(procPed$carriers)
+    if (length(pattern)>ncarriers) stop("Pattern of variant copies longer than number of variant carriers.")
+    # Extension to all carriers
+    pattern = c(rep(1,ncarriers-length(pattern)),pattern)
+    names(pattern) = as.character(procPed$carriers)
+    
+    rvInCarriers <- sapply(pattern,list)
+    noRvInNonCarriers <- sapply(simplify=FALSE, FUN=function(dummy) 0,
+                                X=as.character(setdiff(procPed$affected, procPed$carriers)))
+    return(marginalProb(net, c(rvInCarriers, noRvInNonCarriers)))
+}
+
 #' denominator of sharing probability
 #' @keywords internal
 #'
@@ -38,7 +62,7 @@ denomProb <- function(net, procPed)
 #' probabilities. 
 #' @param procPed pedigree that has been through processPedigree()
 #' @return sharing probability
-oneFounderSharingProb <- function(procPed)
+oneFounderSharingProb <- function(procPed, distinguishHomo=FALSE)
 {
     # set all founders to 0 (no variant)
     net <- try(createNetwork(procPed))
@@ -49,6 +73,11 @@ oneFounderSharingProb <- function(procPed)
     
     # sum over probs, conditioning on each founder introducing variant
     numer <- denom <- 0
+    if (distinguishHomo)
+    {
+        npatterns = 2^length(procPed$carriers)
+        numer = numeric(npatterns)
+    }
     for (f in procPed$founders) #TODO: use sapply here
     {
         # condition on founder and calculate distribution
@@ -57,7 +86,9 @@ oneFounderSharingProb <- function(procPed)
 
         # compute probability
         denom <- denom + denomProb(condNet, procPed)
-        numer <- numer + numerProb(condNet, procPed)
+        if (distinguishHomo)
+            numer <- numer + sapply(0:(npatterns-1),numerProbPattern, net=condNet, procPed=procPed)
+        else numer <- numer + numerProb(condNet, procPed)
     }
     return(numer/denom)
 }
@@ -74,7 +105,7 @@ oneFounderSharingProb <- function(procPed)
 #' of the number of distinct alleles in the founders (d in Bureau et al.).
 #' Must be <= 5
 #' @return sharing probability
-twoFounderSharingProb <- function(procPed, kinshipCoeff, kinshipOrder)
+twoFounderSharingProb <- function(procPed, kinshipCoeff, kinshipOrder, distinguishHomo=FALSE)
 {
     # set all founders to 0 (no variant)
     net <- try(createNetwork(procPed))
@@ -85,6 +116,11 @@ twoFounderSharingProb <- function(procPed, kinshipCoeff, kinshipOrder)
     
     # calculate kinship correction and initialize variables
     numer <- denom <- 0
+    if (distinguishHomo)
+    {
+        npatterns = 2^length(procPed$carriers)
+        numer = numeric(npatterns)
+    }
     remainingFounders <- procPed$founders
     cor <- relatedFoundersCorrection(length(procPed$founders),
         kinshipCoeff, kinshipOrder)
@@ -103,7 +139,9 @@ twoFounderSharingProb <- function(procPed, kinshipCoeff, kinshipOrder)
             # calculate (weighted) conditional probability
             # Correction to formula 2 of Bioinformatics paper
             w <- ifelse(f1==f2, cor, 2*(1-cor) / (length(procPed$founders)-1))
-            numer <- numer + w * numerProb(net2, procPed)
+            if (distinguishHomo)
+                numer <- numer + w * sapply(0:(npatterns-1),numerProbPattern, net=net2, procPed=procPed)
+            else numer <- numer + w * numerProb(net2, procPed)
             denom <- denom + w * denomProb(net2, procPed)
         }
         remainingFounders <- setdiff(remainingFounders, f1)
