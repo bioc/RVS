@@ -42,7 +42,7 @@ NULL
 #' @param useFounderCouples a logical value indicating whether to exploit the interchangeability of the mother and father from founder couples to save computations. Warning! This works only when all founders have only one spouse. Set to FALSE if at least one founder has two or more spouses. Only used when splitPed = TRUE
 #' @param distinguishHomo a logical value indicating whether to compute distinct probabilities for homozygous and heterozygous variant carrier status
 #' @param ... allows for additional arguments
-#' @return sharing probability between all carriers in pedigree, or if splitPed = TRUE, a vector of sharing probabilities for all subsets of the carriers
+#' @return sharing probability between all carriers in pedigree, except when splitPed = TRUE, where a vector of sharing probabilities for all subsets of the carriers is returned, and when distinguishHomo = TRUE, where a vector of sharing probabilities of the (2 to the power ncarriers) configurations of one or two copies of the variant allele among the carriers is returned
 #' @examples
 #' data("samplePedigrees")
 #' RVsharing(samplePedigrees$firstCousinPair)
