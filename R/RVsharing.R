@@ -13,7 +13,8 @@ NULL
 #' (or all final descendants in the pedigree if carriers == NULL) share that
 #' rare variant AND the final descendants not included in carriers do not
 #' carry it, given that the rare variant has been detected in any subject
-#' in the union of the carriers and the final descendants of the pedigree.
+#' in the union of the carriers and the final descendants of the pedigree,
+#' when distinguishHomo = FALSE by default.
 #' A final descendant is defined as a subject without descendant in the
 #' pedigree, it it not necessarily in the youngest generation. If carriers
 #' enumerates a subset of pedigree members, the function will then compute
@@ -21,9 +22,10 @@ NULL
 #' descendants not included in carriers do not carry it based on the above
 #' terms. To control the subset of pedigree members for which sharing of the
 #' rare variant is evaluated, define the members of the subset as affected in
-#' ped and set the option uneAffected=TRUE. The only restriction is that all
-#' carriers must be defined as affected.
-#'
+#' ped and set the option useAffected=TRUE. The only restriction is that all
+#' carriers must be defined as affected. The probability of the (2 to the power
+#' ncarriers) configurations of one or two copies of the variant allele among 
+#' the carriers is instead computed when distinguishHomo = TRUE.
 #' @param ped S3 pedigree object or a list of pedigree objects
 #' @param carriers subjects in pedigree that have the variant, if
 #' ped is a list, then this will also be a list of vectors specifying
@@ -42,7 +44,7 @@ NULL
 #' @param useFounderCouples a logical value indicating whether to exploit the interchangeability of the mother and father from founder couples to save computations. Warning! This works only when all founders have only one spouse. Set to FALSE if at least one founder has two or more spouses. Only used when splitPed = TRUE
 #' @param distinguishHomo a logical value indicating whether to compute distinct probabilities for homozygous and heterozygous variant carrier status
 #' @param ... allows for additional arguments
-#' @return sharing probability between all carriers in pedigree, except when splitPed = TRUE, where a vector of sharing probabilities for all subsets of the carriers is returned, and when distinguishHomo = TRUE, where a vector of sharing probabilities of the (2 to the power ncarriers) configurations of one or two copies of the variant allele among the carriers is returned
+#' @return sharing probability between all carriers in pedigree, except when splitPed = TRUE, where a vector of sharing probabilities for all subsets of the carriers is returned, and when distinguishHomo = TRUE, where a vector of sharing probabilities of the (2 to the power ncarriers) configurations of one or two copies of the variant allele among the carriers is returned. In this case, the probabilities are named by binary strings, such that a "0" means 1 copy of the variant allele and a "1" means 2 copies of the variant allele.
 #' @examples
 #' data("samplePedigrees")
 #' RVsharing(samplePedigrees$firstCousinPair)
