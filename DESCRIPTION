@@ -2,7 +2,7 @@ Package: RVS
 Type: Package
 Title: Computes estimates of the probability of related individuals sharing a
     rare variant
-Version: 1.35.0
+Version: 1.36.0
 Date: 2026-10-26
 Authors@R: c(person(given = "Alexandre",
                       family = "Bureau",
